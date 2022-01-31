@@ -151,4 +151,31 @@ public class BeerControllerTest {
                         .accept(MediaType.APPLICATION_JSON))
                 .andExpect(status().isOk());
     }
+
+    @Test
+    void whenDELETEIsCalledWithValidIdThenStatusNoContentIsReturned() throws Exception {
+        //given
+        BeerDTO beerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+
+        //when
+        Mockito.doNothing().when(beerService).deleteById(beerDTO.getId());
+
+        //then
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete(BEER_API_URL_PATH + "/" + beerDTO.getId())
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNoContent());
+    }
+
+    @Test
+    void whenDELETEIsCalledWithInvalidIdThenStatusNotFoundIsReturned() throws Exception {
+        //when
+        Mockito.doThrow(BeerNotFoundException.class).when(beerService).deleteById(INVALID_BEER_ID);
+
+        //then
+        mockMvc.perform(MockMvcRequestBuilders
+                        .delete(BEER_API_URL_PATH + "/" + INVALID_BEER_ID)
+                        .accept(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
+    }
 }

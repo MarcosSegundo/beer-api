@@ -116,4 +116,21 @@ public class BeerServiceTest {
         List<BeerDTO> foundBeerDTOS = beerService.listAll();
         MatcherAssert.assertThat(foundBeerDTOS, Matchers.is(Matchers.empty()));
     }
+
+    @Test
+    void whenExclusionIsCalledWithValidIdThenABeerShouldBeDeleted() throws BeerNotFoundException {
+        //given
+        BeerDTO expectedDeletedBeerDTO = BeerDTOBuilder.builder().build().toBeerDTO();
+        Beer expectedDeletedBeer = beerMapper.toModel(expectedDeletedBeerDTO);
+
+        //when
+        Mockito.when(beerRepository.findById(expectedDeletedBeerDTO.getId())).thenReturn(Optional.of(expectedDeletedBeer));
+        Mockito.doNothing().when(beerRepository).deleteById(expectedDeletedBeerDTO.getId());
+
+        //then
+        beerService.deleteById(expectedDeletedBeerDTO.getId());
+
+        Mockito.verify(beerRepository, Mockito.times(1)).findById(expectedDeletedBeerDTO.getId());
+        Mockito.verify(beerRepository, Mockito.times(1)).deleteById(expectedDeletedBeerDTO.getId());
+    }
 }
